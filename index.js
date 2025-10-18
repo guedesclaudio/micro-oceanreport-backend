@@ -55,7 +55,7 @@ server.post("/proxy", async (req, res) => {
       return res.status(400).json(message);
     }
 
-    const baseUrl = "http://212.85.14.153:30081";
+    const baseUrl = "http://191.252.217.133:30081";
     const url = `${baseUrl}${endpoint}`;
 
     const response = await axios({
