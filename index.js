@@ -4,7 +4,7 @@ import cors from "cors";
 
 const server = express();
 server.use(cors());
-server.use(express.json())
+server.use(express.json());
 
 // Ocean endpoint
 server.get("/ocean/:date", async (req, res) => {
@@ -42,9 +42,12 @@ server.get("/atmosphere/:date", async (req, res) => {
 
 // Endpoint genérico: POST /proxy
 server.post("/proxy", async (req, res) => {
+  const before = Date.now();
   try {
     const { endpoint, method = "GET", headers = {}, body = {}, query = {} } = req.body;
-    console.log(`[proxy] - Receiving request. Params: ${JSON.stringify(body)}`);
+    const info = { endpoint, method };
+    const stringifyInfo = JSON.stringify(info);
+    console.log(`[proxy] - Receiving request. Params: ${stringifyInfo}`);
 
     if (!endpoint) {
       const message = { error: "Missing 'endpoint' in body." };
@@ -55,7 +58,6 @@ server.post("/proxy", async (req, res) => {
     const baseUrl = "http://212.85.14.153:30081";
     const url = `${baseUrl}${endpoint}`;
 
-    // Faz requisição à VPS
     const response = await axios({
       url,
       method,
@@ -64,11 +66,14 @@ server.post("/proxy", async (req, res) => {
       params: query,
       validateStatus: () => true,
     });
-
-    console.log(`[proxy] - Request OK. Params: ${JSON.stringify({body})}`);
+    const after = Date.now();
+    const diff = after - before;
+    console.log(`[proxy] - Request OK. Time: ${diff} ms. Params: ${stringifyInfo}`);
     return res.status(response.status).json(response.data);
   } catch (error) {
-    console.error("[proxy] - Error:", error.message);
+    const after = Date.now();
+    const diff = after - before;
+    console.error(`[proxy] - Time: ${diff} ms. Error:`, error.message);
     return res.status(500).json({ error: "Internal proxy error" });
   }
 });
@@ -77,5 +82,5 @@ server.post("/proxy", async (req, res) => {
 server.get("/health", (_, res) => res.json({ status: "ok" }));
 
 server.listen(4001, () => {
-    console.log("Server listen on PORT 4001");
+  console.log("Server listen on PORT 4001");
 });
