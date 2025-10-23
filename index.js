@@ -13,6 +13,10 @@ server.use(cors());
 server.use(express.json());
 server.use(limiter);
 
+const apiKeys = [
+  'api-key-master-2025-01-01-ocean'
+];
+
 // Ocean endpoint
 server.get("/ocean/:date", async (req, res) => {
 
@@ -54,7 +58,10 @@ server.post("/proxy", async (req, res) => {
     const { endpoint, method = "GET", headers = {}, body = {}, query = {} } = req.body;
     const info = { endpoint, method };
     const stringifyInfo = JSON.stringify(info);
+    const apiKey = req.headers['x-api-key'];
     console.log(`[proxy] - Receiving request. Params: ${stringifyInfo}`);
+
+    // if (!apiKey || !apiKeys.includes(apiKey)) return res.status(401).json({ error: "Unauthorized" });
 
     if (!endpoint) {
       const message = { error: "Missing 'endpoint' in body." };
