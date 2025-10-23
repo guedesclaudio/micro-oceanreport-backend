@@ -1,10 +1,17 @@
 import express from "express";
 import axios from "axios";
 import cors from "cors";
+import rateLimit from 'express-rate-limit';
+
+const limiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+});
 
 const server = express();
 server.use(cors());
 server.use(express.json());
+server.use(limiter);
 
 // Ocean endpoint
 server.get("/ocean/:date", async (req, res) => {
@@ -82,5 +89,5 @@ server.post("/proxy", async (req, res) => {
 server.get("/health", (_, res) => res.json({ status: "ok" }));
 
 server.listen(4001, () => {
-  console.log("Server listen on PORT 4001");
+  console.log(`Server listen on http://localhost:${4001}`);
 });
